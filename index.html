@@ -2,46 +2,92 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Nano Banana 2 - Görsel Oluşturucu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana 2 - Unlimited Image Gen</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; }
-        #imageContainer img { max-width: 90%; margin-top: 20px; border-radius: 8px; border: 2px solid #444; }
-        input { padding: 10px; width: 300px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; cursor: pointer; background: #ffcc00; border: none; font-weight: bold; }
+        :root { --main-color: #ffcc00; --bg-dark: #121212; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: var(--bg-dark); color: white; margin: 0; padding: 20px; }
+        
+        .header { margin-bottom: 30px; }
+        h1 { color: var(--main-color); text-transform: uppercase; letter-spacing: 2px; }
+        
+        .controls { background: #222; padding: 20px; border-radius: 15px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { padding: 12px; width: 350px; border-radius: 8px; border: 2px solid #444; background: #333; color: white; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--main-color); }
+        
+        button { padding: 12px 25px; cursor: pointer; background: var(--main-color); border: none; font-weight: bold; border-radius: 8px; transition: 0.3s; }
+        button:hover { background: #e6b800; transform: scale(1.05); }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        #gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 40px; }
+        .img-card { background: #222; padding: 10px; border-radius: 12px; border: 1px solid #333; transition: 0.3s; width: 300px; }
+        .img-card img { width: 100%; border-radius: 8px; cursor: pointer; }
+        .img-card p { font-size: 12px; color: #aaa; margin-top: 8px; }
+
+        /* Basit bir yükleme efekti */
+        .loader { display: none; margin: 20px auto; border: 4px solid #333; border-top: 4px solid var(--main-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <h1>Nano Banana 2: Image Gen</h1>
 
-    <input type="text" id="promptInput" placeholder="Ne hayal ediyorsun?">
-    <button onclick="generateImage()">Görsel Oluştur</button>
+    <div class="header">
+        <h1>🍌 Nano Banana 2: Unlimited</h1>
+        <p>Sınırsız hayal gücü, anında görsel.</p>
+    </div>
 
-    <div id="imageContainer">
-        <p id="status"></p>
+    <div class="controls">
+        <input type="text" id="promptInput" placeholder="Sürreal bir uzay muzu çiz...">
+        <button id="genBtn" onclick="generateImage()">Oluştur</button>
+        <div id="loader" class="loader"></div>
+    </div>
+
+    <div id="gallery">
+        <!-- Görseller buraya eklenecek -->
     </div>
 
     <script>
         async function generateImage() {
-            const prompt = document.getElementById('promptInput').value;
-            const container = document.getElementById('imageContainer');
-            const status = document.getElementById('status');
+            const promptInput = document.getElementById('promptInput');
+            const prompt = promptInput.value;
+            const btn = document.getElementById('genBtn');
+            const loader = document.getElementById('loader');
+            const gallery = document.getElementById('gallery');
 
-            if (!prompt) return alert("Lütfen bir açıklama yaz!");
+            if (!prompt) return alert("Hey! Bir şeyler yazman lazım.");
 
-            status.innerText = "Görsel oluşturuluyor, lütfen bekle...";
+            // Arayüzü hazırla
+            btn.disabled = true;
+            loader.style.display = "block";
 
             try {
-                // Puter SDK kullanımı
-                const imageElement = await puter.ai.txt2img(prompt + ", 16:9, high quality", {
-                    model: "gemini-3.1-flash-image-preview"
-                });
+                // Daha iyi sonuç için otomatik geliştirme ekliyoruz
+                const enhancedPrompt = `${prompt}, high resolution, digital art, masterpiece, 16:9`;
+                
+                // Puter AI çağrısı
+                const imageElement = await puter.ai.txt2img(enhancedPrompt);
 
-                status.innerText = ""; // Yazıyı temizle
-                container.innerHTML = ""; // Eski resmi temizle
-                container.appendChild(imageElement);
+                // Yeni bir kart oluştur (Görselleri biriktirmek için)
+                const card = document.createElement('div');
+                card.className = 'img-card';
+                
+                const info = document.createElement('p');
+                info.innerText = prompt.substring(0, 30) + "...";
+
+                card.appendChild(imageElement);
+                card.appendChild(info);
+                
+                // En başa ekle (En yeni en üstte)
+                gallery.prepend(card);
+
             } catch (error) {
-                status.innerText = "Hata oluştu: " + error.message;
+                console.error(error);
+                alert("Bir hata oluştu. Puter limitlerine takılmış olabilirsin.");
+            } finally {
+                btn.disabled = false;
+                loader.style.display = "none";
+                promptInput.value = ""; // Inputu temizle
             }
         }
     </script>
