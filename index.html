@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Nano Banana 2 - Görsel Oluşturucu</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; }
+        #imageContainer img { max-width: 90%; margin-top: 20px; border-radius: 8px; border: 2px solid #444; }
+        input { padding: 10px; width: 300px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; cursor: pointer; background: #ffcc00; border: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Nano Banana 2: Image Gen</h1>
+
+    <input type="text" id="promptInput" placeholder="Ne hayal ediyorsun?">
+    <button onclick="generateImage()">Görsel Oluştur</button>
+
+    <div id="imageContainer">
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById('promptInput').value;
+            const container = document.getElementById('imageContainer');
+            const status = document.getElementById('status');
+
+            if (!prompt) return alert("Lütfen bir açıklama yaz!");
+
+            status.innerText = "Görsel oluşturuluyor, lütfen bekle...";
+
+            try {
+                // Puter SDK kullanımı
+                const imageElement = await puter.ai.txt2img(prompt + ", 16:9, high quality", {
+                    model: "gemini-3.1-flash-image-preview"
+                });
+
+                status.innerText = ""; // Yazıyı temizle
+                container.innerHTML = ""; // Eski resmi temizle
+                container.appendChild(imageElement);
+            } catch (error) {
+                status.innerText = "Hata oluştu: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
